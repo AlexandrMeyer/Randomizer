@@ -7,30 +7,34 @@
 
 import UIKit
 
+protocol SettingsViewControllerDelegate {
+    func setNewValues(for randomNumber: RandomNumber)
+}
+
 class ViewController: UIViewController {
 
     @IBOutlet var minimumValueLabel: UILabel!
     @IBOutlet var maximumValueLabel: UILabel!
     @IBOutlet var randomValueLabel: UILabel!
     
+    private var randomNumber = RandomNumber(minimumValue: 0, maximumValue: 100)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        minimumValueLabel.text = String(randomNumber.minimumValue)
+        maximumValueLabel.text = String(randomNumber.maximumValue)
     }
     
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let settingsVC = segue.destination as? SettingsViewController else { return }
-        
-        settingsVC.minimumValue = minimumValueLabel.text
-        settingsVC.maximumValue = maximumValueLabel.text
+        guard let navigationVC = segue.destination as? UINavigationController else { return }
+        guard let settingsVC = navigationVC.topViewController as? SettingsViewController else { return }
+        settingsVC.randomNumber = randomNumber
+        settingsVC.delegate = self
     }
     
     @IBAction func getRandomNumberButtonTapped() {
-        let minimumNumber = Int(minimumValueLabel.text ?? "") ?? 0
-        let maximumNumber = Int(maximumValueLabel.text ?? "") ?? 100
         
-        randomValueLabel.text = String(Int.random(in: minimumNumber...maximumNumber))
+        randomValueLabel.text = String(randomNumber.getRandom)
     }
     
     
@@ -41,3 +45,12 @@ class ViewController: UIViewController {
     }
 }
 
+extension ViewController: SettingsViewControllerDelegate {
+    func setNewValues(for randomNumber: RandomNumber) {
+        minimumValueLabel.text = String(randomNumber.minimumValue)
+        maximumValueLabel.text = String(randomNumber.maximumValue)
+        self.randomNumber = randomNumber
+    }
+    
+    
+}
